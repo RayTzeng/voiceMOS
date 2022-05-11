@@ -1,0 +1,52 @@
+runner:
+  total_steps: 20000
+  gradient_clipping: 5
+  gradient_accumulate_steps: 16
+
+  log_step: 100
+  eval_step: 500
+  save_step: 500
+  max_keep: 1
+  eval_dataloaders:
+    - dev
+    - test
+
+optimizer:
+  name: Adam
+  lr: 1.0e-5
+
+# comment the whole scheduler config block
+# to disable learning rate scheduling
+scheduler:
+  name: linear_schedule_with_warmup
+  num_warmup_steps: 500
+
+downstream_expert:
+  datarc:
+    num_workers: 8
+    train_batch_size: 2
+    eval_batch_size: 2
+    data_folders: ['/home/raytz/Disk/voiceMOS/phase1-main/DATA', '/home/raytz/Disk/voiceMOS/phase1-ood/DATA']
+    corpus_names: ['voiceMOS_main', 'voiceMOS_ood']
+    test_wav_folders: []
+    train_mos_list_path: sets/train_mos_list.txt
+    train_ld_score_list_path: sets/TRAINSET
+    val_mos_list_path: sets/val_mos_list.txt
+    val_ld_score_list_path: sets/DEVSET
+    test_mos_list_path: sets/val_mos_list.txt
+    ld_score_bool: False
+    idtable: ""
+    perturb:
+      mode: 'random'
+      types: ['speed', 'speed', 'pitch', 'pitch', 'tempo', 'tempo']               # ['speed', 'trim', 'pad', 'pitch', 'tempo']
+      ratios: [0.95, 1.05, 100, -100, 0.95, 1.05]              # 
+
+  modelrc:
+    projector_dim: 768
+    regression_objective: MSELoss
+    dim: [256, 256]
+    dropout: [0, 0]
+    activation: ReLU
+    pooling_name: AttentivePooling
+    classification_weight: 0
+    regression_weight: 1
