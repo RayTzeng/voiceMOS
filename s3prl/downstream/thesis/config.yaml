@@ -1,14 +1,14 @@
 runner:
   total_steps: 20000
   gradient_clipping: 5
-  gradient_accumulate_steps: 16
+  gradient_accumulate_steps: 8
 
   log_step: 100
   eval_step: 500
   save_step: 500
   max_keep: 1
   eval_dataloaders:
-    - dev
+    - eval
     - test
 
 optimizer:
@@ -23,30 +23,29 @@ scheduler:
 
 downstream_expert:
   datarc:
-    num_workers: 8
+    num_workers: 1
     train_batch_size: 2
     eval_batch_size: 2
-    data_folders: ['/home/raytz/Disk/voiceMOS/phase1-main/DATA', '/home/raytz/Disk/voiceMOS/phase1-ood/DATA']
-    corpus_names: ['voiceMOS_main', 'voiceMOS_ood']
-    test_wav_folders: []
-    train_mos_list_path: sets/train_mos_list.txt
-    train_ld_score_list_path: sets/TRAINSET
-    val_mos_list_path: sets/val_mos_list.txt
-    val_ld_score_list_path: sets/DEVSET
-    test_mos_list_path: sets/val_mos_list.txt
-    ld_score_bool: False
-    idtable: ""
-    perturb:
-      mode: 'random'
-      types: ['speed', 'speed', 'pitch', 'pitch', 'tempo', 'tempo']               # ['speed', 'trim', 'pad', 'pitch', 'tempo']
-      ratios: [0.95, 1.05, 100, -100, 0.95, 1.05]              # 
+    train_dataset: ['BVCC'] # BVCC, NISQA
+    eval_dataset: ['BVCC']
+    test_dataset: ['BVCC','NISQA']
+    BVCC:
+      base_path: /home/raytz/Disk/BVCC/DATA
+      train_csv: sets/train_mos_list.txt
+      eval_csv: sets/val_mos_list.txt
+      test_csv: sets/test_mos_list.txt
+
+    NISQA:
+      base_path: /home/raytz/Disk/NISQA_Corpus
+      csv_file: NISQA_corpus_file.csv
+      train_split: ["NISQA_TRAIN_LIVE", "NISQA_TRAIN_SIM"]
+      eval_split: ["NISQA_VAL_LIVE", "NISQA_VAL_SIM"]
+      test_split: ["NISQA_TEST_LIVETALK", "NISQA_TEST_P501", "NISQA_TEST_FOR"]
 
   modelrc:
     projector_dim: 768
-    regression_objective: MSELoss
-    dim: [256, 256]
+    objective: MSELoss
+    dim: [768, 256]
     dropout: [0, 0]
     activation: ReLU
     pooling_name: AttentivePooling
-    classification_weight: 0
-    regression_weight: 1
